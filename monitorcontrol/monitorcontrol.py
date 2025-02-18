@@ -61,6 +61,14 @@ class InputSource(enum.Enum):
     DP2 = 0x10
     HDMI1 = 0x11
     HDMI2 = 0x12
+    THUNDERBOLT=0x19
+    USB_C=0x1B
+
+class UnknownInputSource:
+
+    def __init__(self, inputSource):
+        self.name = 'unknown'
+        self.value = inputSource
 
 
 class InputSourceValueError(ValueError):
@@ -77,6 +85,20 @@ class InputSourceValueError(ValueError):
         super().__init__(message)
         self.value = value
 
+@enum.unique
+class PBP(enum.Enum):
+    OFF=0x00
+    ## Commands
+    PIP_SMALL_LARGE_SWITCH=0x01 ## 1
+    PIP_MOVE_CORNER=0x02 ## 2
+    ## Settings
+    PIP_SMALL=0x21 ## 33
+    PIP_LARGE=0x22 ## 34
+    PBP_FIFTY_FIFTY=0x24 ## 36
+    PBP_TWENTY_EIGHTY=0x27 ## 39
+    PBP_EIGHTY_TWENTY=0x28 ## 40
+    PBP_TWENTYFIVE_SEVENTYFIVE=0x29 ## 41
+    PBP_SEVENTYFIVE_TWENTYFIVE=0x2A ## 42
 
 class Monitor:
     """
@@ -463,9 +485,9 @@ class Monitor:
         try:
             return InputSource(value)
         except ValueError:
-            raise InputSourceValueError(
-                f"{value} is not a valid InputSource", value
-            ) from None
+            print(f'WARNING: Input source value {value} is not within the MCCS defined inputs.')
+            return UnknownInputSource(value)
+            # raise InputSourceValueError(f"{value} is not a valid InputSource", value)
 
     def set_input_source(self, value: Union[int, str, InputSource]):
         """
@@ -500,6 +522,41 @@ class Monitor:
         code = vcp.VCPCode("input_select")
         self._set_vcp_feature(code, mode_value)
 
+    def get_pbp (self) -> PBP:
+        code = vcp.VCPCode("PBP")
+        value = self._get_vcp_feature(code)
+        return PBP(value)
+
+    def set_pbp (self, value: Union[int, str, PBP]):
+        if isinstance(value, str):
+            mode_value = getattr(PBP, value.upper()).value
+        elif isinstance(value, int):
+            mode_value = value
+        elif isinstance(value, PBP):
+            mode_value = value.value
+        else:
+            raise TypeError("unsupported input type: " + repr(type(value)))
+
+        code = vcp.VCPCode("PBP")
+        self._set_vcp_feature(code, mode_value)
+
+    # def get_sub_input (seld) -> InputSource:
+    #     code = vcp.VCPCode("sub_input")
+    #     value = self._get_vcp_feature(code)
+    #     return InputSource(value)
+
+    def set_sub_input(self, value: Union[int, str, InputSource]):
+        if isinstance(value, str):
+            mode_value = getattr(InputSource, value.upper()).value
+        elif isinstance(value, int):
+            mode_value = value
+        elif isinstance(value, InputSource):
+            mode_value = value.value
+        else:
+            raise TypeError("unsupported input type: " + repr(type(value)))
+
+        code = vcp.VCPCode("sub_input")
+        self._set_vcp_feature(code, mode_value)
 
 def get_vcps() -> List[Type[vcp.VCP]]:
     """
@@ -680,6 +737,34 @@ def _parse_capabilities(caps_str: str) -> dict:
                 input_source = val
 
             caps_dict["inputs"].append(input_source)
+
+    pbp_source_cap = vcp.VCPCode('PBP').value
+    if input_source_cap in caps_dict["vcp"]:
+        caps_dict["PBP"] = []
+        input_val_list = list(caps_dict["vcp"][pbp_source_cap].keys())
+        input_val_list.sort()
+
+        for val in input_val_list:
+            try:
+                input_source = PBP(val)
+            except ValueError:
+                input_source = val
+
+            caps_dict["PBP"].append(input_source)
+
+    # sub_input_source_cap = vcp.VCPCode('sub_input').value
+    # if input_source_cap in caps_dict["vcp"]:
+    #     caps_dict["sub_input"] = []
+    #     input_val_list = list(caps_dict["vcp"][sub_input_source_cap].keys())
+    #     input_val_list.sort()
+
+    #     for val in input_val_list:
+    #         try:
+    #             input_source = InputSource(val)
+    #         except ValueError:
+    #             input_source = val
+
+    #         caps_dict["sub_input"].append(input_source)
 
     # Parse the color presets into a text list for readability
     color_preset_cap = vcp.VCPCode("image_color_preset").value
