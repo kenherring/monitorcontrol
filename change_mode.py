@@ -22,8 +22,12 @@ def get_monitor(model, refresh=True):
     try:
         for monitor in monitors:
             with monitor:
-                if monitor.get_model() == model:
-                    return monitor
+                try:
+                    if monitor.get_model() == model:
+                        return monitor
+                except Exception as e:
+                    print('  e=' + str(e))
+        raise Exception('No monitor found with model ' + model)
     except Exception as e:
         print('e=' + str(e))
         monitors == None
