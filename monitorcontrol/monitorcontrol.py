@@ -101,6 +101,9 @@ class PBP(enum.Enum):
     PBP_SEVENTYFIVE_TWENTYFIVE=0x2A ## 42
 
 class Monitor:
+
+    _capabilities = None
+
     """
     A physical monitor attached to a Virtual Control Panel (VCP).
 
@@ -232,10 +235,21 @@ class Monitor:
         """
         assert self._in_ctx, "This function must be run within the context manager"
 
-        cap_str = self.vcp.get_vcp_capabilities()
+        if self._capabilities == None:
+            self._capabilities = _parse_capabilities(self.vcp.get_vcp_capabilities())
+        return self._capabilities
 
-        res = _parse_capabilities(cap_str)
-        return res
+    def get_model(self) -> str:
+        if self._capabilities == None:
+            self._capabilities = _parse_capabilities(self.vcp.get_vcp_capabilities())
+        return self._capabilities['model']
+
+    def get_sub_input (self) -> InputSource:
+        if self._capabilities == None:
+            self._capabilities = _parse_capabilities(self.vcp.get_vcp_capabilities())
+        code = vcp.VCPCode("sub_input")
+        value = self._get_vcp_feature(code)
+        return InputSource(value)
 
     def get_luminance(self) -> int:
         """
@@ -539,11 +553,6 @@ class Monitor:
 
         code = vcp.VCPCode("PBP")
         self._set_vcp_feature(code, mode_value)
-
-    # def get_sub_input (seld) -> InputSource:
-    #     code = vcp.VCPCode("sub_input")
-    #     value = self._get_vcp_feature(code)
-    #     return InputSource(value)
 
     def set_sub_input(self, value: Union[int, str, InputSource]):
         if isinstance(value, str):

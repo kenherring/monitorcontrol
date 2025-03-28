@@ -8,90 +8,88 @@ class Mons(enum.Enum):
     U4025QW = 'U4025QW'
     U3821DW = 'U3821DW'
 
+monitors = None
+
 def set_key_value (key: int, value: int) :
     print(f'setting key={key}, value={value}')
 
-def print_vpc () :
 
+def get_monitor(model):
+    global monitors
+    if monitors == None:
+        monitors = get_monitors()
+
+    for monitor in monitors:
+        with monitor:
+            if monitor.get_model() == model:
+                return monitor
+    raise Exception(f"No monitor found with model {model}")
+
+
+
+def print_vpc () :
     monitors =  get_monitors()
     print(f'Number of monitors: {len(monitors)}')
-    for monitor in get_monitors():
+    if monitors == None:
+        monitors = get_monitors()
+    for monitor in monitors:
         with monitor:
             print('monitor=' + str(monitor))
             try:
                 capabilities = monitor.get_vcp_capabilities()
                 if capabilities['model'] != 'U4025QW':
                     continue
-                # if capabilities['model'] == 'U3821DW':
-                #     continue
                 print(f'capabilities: {capabilities}')
                 return
-            #     print('monitor=' + capabilities['model'] + ', current input source=' + str(monitor.get_input_source()))
-            #     # print(f'name: ${capabilities.name}')
-            #     # monitor.set_input_source('DP1')
             except Exception as e:
                 print(f'Error: {e}')
                 continue
 
 def set_input_source (mon: Mons, input_source: InputSource):
-    for monitor in get_monitors():
-        with monitor:
-            try:
-                capabilities = monitor.get_vcp_capabilities()
-                print('capabilities.model=' + capabilities['model'])
-                print ('mon.value=' + mon.value)
-                if capabilities['model'] != mon.value:
-                    continue
+    print('set_input_source mon=' + mon.value + ' input_source=' + str(input_source))
 
-                current_input_source = monitor.get_input_source()
-                print(f'current input source: name={current_input_source.name} value=' + str(current_input_source.value))
-                if (current_input_source.value == input_source.value):
-                    print(f'Already on input source {input_source}')
-                    return
-                print(f'Changing input source from {current_input_source} to {input_source} for monitor {mon}')
-                monitor.set_input_source(input_source)
-                time.sleep(3)
+    monitor = get_monitor(mon.value)
+    with monitor:
+        try:
+            current_input_source = monitor.get_input_source()
+            if (current_input_source.value == input_source.value):
+                print(f'  already on input source {input_source}')
                 return
-            except Exception as e:
-                print(f'Error: {e}')
-                continue
-    print('could not find monitor ' + mon)
-    # raise Exception('Monitor not found')
+            print(f'  changing input source from {current_input_source} to {input_source} for monitor {mon}')
+            monitor.set_input_source(input_source)
+            time.sleep(3)
+            return
+        except Exception as e:
+            print(f'  warning: {e}')
 
 def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
-    for monitor in get_monitors():
-        with monitor:
-            try:
-                capabilities = monitor.get_vcp_capabilities()
-                if capabilities['model'] != mon.value:
-                    continue
-                current_mode = monitor.get_pbp()
-                print(f'current_pbp=${current_mode}')
+    print('set_pbp_mode mon=' + mon.value + ' mode=' + mode + ' sub_input=' + str(sub_input))
 
-                mode_value = mode_value = getattr(PBP, mode.upper())
-                if current_mode == mode_value:
-                    print(f'Already in mode {mode_value}')
-                else:
-                    monitor.set_pbp(mode)
-                    time.sleep(5)
-                    if mode == 'OFF':
-                        print('pbp turned off')
-                        return
-                    new_mode = monitor.get_pbp()
-                    print(f'new_pbp=${new_mode}')
-                    time.sleep(1)
+    monitor = get_monitor(mon.value)
+    with monitor:
+        try:
+            current_mode = monitor.get_pbp()
+            mode_value = getattr(PBP, mode.upper())
+            if current_mode == mode_value:
+                print(f'  already in mode {mode_value}')
+            else:
+                monitor.set_pbp(mode)
+                time.sleep(3)
+                # new_mode = monitor.get_pbp()
+                # print(f'new_pbp=${new_mode}')
+                # time.sleep(1)
 
-                # # current_sub_input = monitor.get_sub_input()
-                # # print(f'current_sub_input=${current_sub_input}')
-                print(f'setting sub_input=${sub_input}')
+            if mode == 'OFF':
+                return
+            current_sub_input = monitor.get_sub_input()
+            print(f'  current_sub_input=${current_sub_input}')
+            if (current_sub_input != sub_input):
+                print(f'  setting sub_input=${sub_input}')
                 monitor.set_sub_input(sub_input)
 
-                return
-            except Exception as e:
-                print(f'Error: {e}')
-                return
-    print('could not find monitor ' + mon)
-    # raise Exception('Monitor not found')
+            return
+        except Exception as e:
+            print(f'  warning: {e}')
 
 
 ##### SPLIT SCREEN #####
