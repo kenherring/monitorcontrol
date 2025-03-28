@@ -105,9 +105,9 @@ def main ():
             set_input_source(Mons.U4025QW, InputSource.THUNDERBOLT)
             set_pbp_mode(Mons.U4025QW, 'PBP_FIFTY_FIFTY', InputSource.DP1)
         case 'fun':
-            set_input_source(Mons.U4025QW, InputSource.THUNDERBOLT)
-            set_input_source(Mons.U3821DW, InputSource.USB_C)
             set_pbp_mode(Mons.U4025QW, 'OFF', None)
+            set_input_source(Mons.U3821DW, InputSource.USB_C)
+            set_input_source(Mons.U4025QW, InputSource.THUNDERBOLT)
         case 'work':
             set_pbp_mode(Mons.U4025QW, 'PBP_FIFTY_FIFTY', InputSource.HDMI1)
             set_input_source(Mons.U3821DW, InputSource.DP1)
