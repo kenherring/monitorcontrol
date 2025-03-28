@@ -92,7 +92,12 @@ def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
 
             if mode == 'OFF':
                 return
-            current_sub_input = monitor.get_sub_input()
+            print(f'  checking sub_input for mode {mode}')
+            try:
+                current_sub_input = monitor.get_sub_input()
+            except Exception as e:
+                monitor = get_monitor(mon.value)
+                current_sub_input = monitor.get_sub_input()
             print(f'  current_sub_input=${current_sub_input}')
             if (current_sub_input != sub_input):
                 print(f'  setting sub_input=${sub_input}')
