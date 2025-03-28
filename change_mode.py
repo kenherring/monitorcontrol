@@ -50,12 +50,13 @@ def set_input_source (mon: Mons, input_source: InputSource):
                     return
                 print(f'Changing input source from {current_input_source} to {input_source} for monitor {mon}')
                 monitor.set_input_source(input_source)
-                time.sleep(1)
+                time.sleep(3)
                 return
             except Exception as e:
                 print(f'Error: {e}')
                 continue
-    raise Exception('Monitor not found')
+    print('could not find monitor ' + mon)
+    # raise Exception('Monitor not found')
 
 def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
     for monitor in get_monitors():
@@ -72,7 +73,7 @@ def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
                     print(f'Already in mode {mode_value}')
                 else:
                     monitor.set_pbp(mode)
-                    time.sleep(1)
+                    time.sleep(5)
                     if mode == 'OFF':
                         print('pbp turned off')
                         return
@@ -89,7 +90,8 @@ def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
             except Exception as e:
                 print(f'Error: {e}')
                 return
-    raise Exception('Monitor not found')
+    print('could not find monitor ' + mon)
+    # raise Exception('Monitor not found')
 
 
 ##### SPLIT SCREEN #####
@@ -107,8 +109,8 @@ def main ():
             set_input_source(Mons.U3821DW, InputSource.USB_C)
             set_pbp_mode(Mons.U4025QW, 'OFF', None)
         case 'work':
-            set_input_source(Mons.U3821DW, InputSource.DP1)
             set_pbp_mode(Mons.U4025QW, 'PBP_FIFTY_FIFTY', InputSource.HDMI1)
+            set_input_source(Mons.U3821DW, InputSource.DP1)
             set_input_source(Mons.U4025QW, InputSource.DP1)
         case _:
             raise Exception('Invalid mode: ' + sys.argv[1])
