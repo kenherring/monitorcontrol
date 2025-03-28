@@ -27,9 +27,9 @@ def get_monitor(model, refresh=True):
                         return monitor
                 except Exception as e:
                     print('  e=' + str(e))
-        raise Exception('No monitor found with model ' + model)
+        raise Exception('  [get_monitor] No monitor found with model ' + model)
     except Exception as e:
-        print('e=' + str(e))
+        print('  [get_monitor] e=' + str(e))
         monitors == None
         if not refresh:
             return get_monitor(model, False)
@@ -75,20 +75,19 @@ def set_input_source (mon: Mons, input_source: InputSource):
         except Exception as e:
             print(f'  warning: {e}')
 
-def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
-    print('set_pbp_mode mon=' + mon.value + ' mode=' + mode + ' sub_input=' + str(sub_input))
+def set_pbp_mode (mon: Mons, mode: PBP, sub_input: InputSource = None):
+    print('set_pbp_mode mon=' + mon.value + ' mode=' + str(mode) + ' sub_input=' + str(sub_input))
 
     monitor = get_monitor(mon.value)
     with monitor:
         try:
             current_mode = monitor.get_pbp()
-            mode_value = getattr(PBP, mode.upper())
-            if current_mode == mode_value:
-                print(f'  already in mode {mode_value}')
+            if current_mode == mode:
+                print(f'  already in mode {mode}')
             else:
-                print('  set_pbp mode from ' + str(current_mode) + ' to ' + str(mode_value))
+                print(f'  set_pbp mode from {current_mode} to {mode}')
                 monitor.set_pbp(mode)
-                time.sleep(3)
+                time.sleep(5)
 
             if mode == 'OFF':
                 return
@@ -96,6 +95,7 @@ def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
             try:
                 current_sub_input = monitor.get_sub_input()
             except Exception as e:
+                time.sleep(3)
                 monitor = get_monitor(mon.value)
                 current_sub_input = monitor.get_sub_input()
             print(f'  current_sub_input=${current_sub_input}')
@@ -119,11 +119,11 @@ def main ():
             set_input_source(Mons.U4025QW, InputSource.THUNDERBOLT)
             set_pbp_mode(Mons.U4025QW, 'PBP_FIFTY_FIFTY', InputSource.DP1)
         case 'fun':
-            set_pbp_mode(Mons.U4025QW, 'OFF', None)
+            set_pbp_mode(Mons.U4025QW, PBP.OFF)
             set_input_source(Mons.U3821DW, InputSource.USB_C)
             set_input_source(Mons.U4025QW, InputSource.THUNDERBOLT)
         case 'work':
-            set_pbp_mode(Mons.U4025QW, 'PBP_FIFTY_FIFTY', InputSource.HDMI1)
+            set_pbp_mode(Mons.U4025QW, PBP.PBP_FIFTY_FIFTY, InputSource.HDMI1)
             set_input_source(Mons.U3821DW, InputSource.DP1)
             set_input_source(Mons.U4025QW, InputSource.DP1)
         case _:
