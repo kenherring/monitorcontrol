@@ -240,13 +240,9 @@ class Monitor:
         return self._capabilities
 
     def get_model(self) -> str:
-        if self._capabilities == None:
-            self._capabilities = _parse_capabilities(self.vcp.get_vcp_capabilities())
-        return self._capabilities['model']
+        return self.get_vcp_capabilities()['model']
 
     def get_sub_input (self) -> InputSource:
-        if self._capabilities == None:
-            self._capabilities = _parse_capabilities(self.vcp.get_vcp_capabilities())
         code = vcp.VCPCode("sub_input")
         value = self._get_vcp_feature(code)
         return InputSource(value)
