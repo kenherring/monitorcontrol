@@ -19,10 +19,15 @@ def get_monitor(model):
     if monitors == None:
         monitors = get_monitors()
 
-    for monitor in monitors:
-        with monitor:
-            if monitor.get_model() == model:
-                return monitor
+    try:
+        for monitor in monitors:
+            with monitor:
+                if monitor.get_model() == model:
+                    return monitor
+    except Exception as e:
+        print('e=' + e)
+        monitors == None
+        return get_monitor(model)
     raise Exception(f"No monitor found with model {model}")
 
 
