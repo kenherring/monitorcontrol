@@ -14,7 +14,7 @@ def set_key_value (key: int, value: int) :
     print(f'setting key={key}, value={value}')
 
 
-def get_monitor(model):
+def get_monitor(model, refresh=True):
     global monitors
     if monitors == None:
         monitors = get_monitors()
@@ -27,7 +27,10 @@ def get_monitor(model):
     except Exception as e:
         print('e=' + str(e))
         monitors == None
-        return get_monitor(model)
+        if not refresh:
+            return get_monitor(model, False)
+        raise e
+
     raise Exception(f"No monitor found with model {model}")
 
 
