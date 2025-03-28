@@ -82,11 +82,9 @@ def set_pbp_mode (mon: Mons, mode: str, sub_input: InputSource):
             if current_mode == mode_value:
                 print(f'  already in mode {mode_value}')
             else:
+                print('  set_pbp mode from ' + str(current_mode) + ' to ' + str(mode_value))
                 monitor.set_pbp(mode)
                 time.sleep(3)
-                # new_mode = monitor.get_pbp()
-                # print(f'new_pbp=${new_mode}')
-                # time.sleep(1)
 
             if mode == 'OFF':
                 return
