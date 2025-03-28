@@ -25,7 +25,7 @@ def get_monitor(model):
                 if monitor.get_model() == model:
                     return monitor
     except Exception as e:
-        print('e=' + e)
+        print('e=' + str(e))
         monitors == None
         return get_monitor(model)
     raise Exception(f"No monitor found with model {model}")
@@ -33,6 +33,7 @@ def get_monitor(model):
 
 
 def print_vpc () :
+    print('print_vpc()')
     monitors =  get_monitors()
     print(f'Number of monitors: {len(monitors)}')
     if monitors == None:
