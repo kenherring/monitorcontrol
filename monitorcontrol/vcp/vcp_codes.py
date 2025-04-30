@@ -52,6 +52,46 @@ _VCP_CODE_DEFINTIONS = {
         "type": "rw",
         "function": "nc",
     },
+
+    ## dell specific??
+    "volume": {
+        "name": "volume",
+        "value": 0x62,
+        "type": "rw",
+        "function": "nc", ## not sure what this does
+    },
+    "mute": {
+        "name": "mute",
+        "value": 0x8D,
+        "type": "rw",
+        "function": "nc",
+    },
+    "PBP": {
+        "name": "picture by picture",
+        "value": 0xE9,
+        "type": "rw",
+        "function": "nc",
+    },
+    "swap_usb": {
+        "name": "swap usb",
+        "value": 0xF7,
+        "type": "wo",
+        "function": "nc",
+    },
+    "swap_input": {
+        "name": "swap input",
+        "value": 0xE5,
+        "type": "wo",
+        "function": "nc",
+    },
+    "sub_input": {
+        "name": "sub input",
+        # "value": 0xE8, ## 232
+        "value": 0xE8,
+        "type": "rw",
+        "function": "nc",
+    }
+
 }
 
 
